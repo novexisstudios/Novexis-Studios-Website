@@ -1,9 +1,11 @@
-
 import { User } from '../types';
 
+// Accessing environment variables. Note: In a pure ESM/importmap environment without a build step, 
+// these are often managed via a config fetch or global injection. 
+// For standard Vite/Netlify workflows, we use import.meta.env.
 const ADMIN_CREDENTIALS = {
-  email: 'admin@novexis.com',
-  password: 'password123' // In a real app, this would be hashed and on a server.
+  email: (import.meta as any).env?.VITE_ADMIN_EMAIL || 'novexisstudios@gmail.com',
+  password: (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'Novexisr0cks@123'
 };
 
 export const login = (email: string, pass: string): User | null => {

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, Key, Info } from 'lucide-react';
+import { ShieldAlert, Key } from 'lucide-react';
 import { login } from '../services/authService';
 
 const Login = () => {
@@ -29,15 +29,6 @@ const Login = () => {
         </div>
         <h1 className="text-3xl font-display font-bold mb-2">Access Portal</h1>
         <p className="text-white/40 mb-8 text-sm uppercase tracking-widest font-display font-bold">Secure Admin Entry</p>
-
-        <div className="bg-blue-500/5 border border-blue-500/20 p-4 rounded-xl mb-6 text-[11px] text-blue-400 text-left flex gap-3">
-          <Info size={24} className="shrink-0" />
-          <div>
-            <p className="font-bold uppercase mb-1">Portal Access Credentials:</p>
-            <p>Email: <span className="text-white font-mono">admin@novexis.com</span></p>
-            <p>Pass: <span className="text-white font-mono">password123</span></p>
-          </div>
-        </div>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl mb-6 text-sm flex items-center gap-2">
