@@ -5,55 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <link rel="icon" type="image/png" href="/logo-transparent.png" />
-
-    <link
-      rel="icon"
-      type="image/png"
-      href="/logo-transparent.png"
-      sizes="32x32"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      href="/logo-transparent.png"
-      sizes="16x16"
-    />
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/logo-transparent.png" />
-
-    <link rel="icon" type="image/svg+xml" href="/logo-transparent.png" />
-
-    <link rel="manifest" href="/site.webmanifest" />
-
-    <title>
-      Novexis Studios | AI, Dev, Video, Marketing, Design & Creative Content
-      Systems
-    </title>
+    <title>Novexis Studios | AI, Web Dev & Creative Content Systems</title>
     <meta
       name="title"
-      content="Novexis Studios | AI, Dev, Video, Marketing, Design & Creative Content Systems"
+      content="Novexis Studios | AI, Web Dev & Creative Content Systems"
     />
     <meta
       name="description"
-      content="Novexis Studios engineers the future of digital growth. We combine Full-Stack Dev, AI, and Game Design with elite Video Editing, 3D Artistry, and Marketing Analytics to scale startups and enterprises."
+      content="Novexis Studios engineers high-performance web apps, AI integrations, and digital growth engines. Expert solutions in Full-Stack Dev, 3D Artistry, and Marketing Analytics."
     />
+    <meta
+      name="keywords"
+      content="Novexis Studios, AI development, Web development India, software studio, full stack development, automation systems, 3D design, video editing"
+    />
+    <link rel="canonical" href="https://novexisstudios.in/" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://novexisstudios.in/" />
     <meta
       property="og:title"
       content="Novexis Studios | Digital Systems for the Future"
     />
     <meta
       property="og:description"
-      content="From Custom Software & AI to Video Editing, Social Media Management, and Data Intelligence. Your all-in-one partner for digital evolution."
+      content="Engineering digital growth through Full-Stack Dev, AI Systems, and Creative Automation. Your partner for digital evolution."
     />
-    <meta property="og:image" content="/og-banner.jpg" />
+    <meta
+      property="og:image"
+      content="https://novexisstudios.in/og-banner.jpg"
+    />
 
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://novexisstudios.in/" />
+    <meta
+      property="twitter:title"
+      content="Novexis Studios | AI & Web Development"
+    />
+    <meta
+      property="twitter:description"
+      content="Building futuristic web and AI solutions for modern businesses."
+    />
+    <meta
+      property="twitter:image"
+      content="https://novexisstudios.in/og-banner.jpg"
+    />
+
+    <link rel="icon" type="image/png" href="/logo-transparent.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo-transparent.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "Novexis Studios",
+        "image": "https://novexisstudios.in/logo-transparent.png",
+        "description": "Novexis Studios engineers digital growth through Full-Stack Development, AI Systems, and Creative Automation.",
+        "url": "https://novexisstudios.in/",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "IN"
+        },
+        "sameAs": [
+          "https://twitter.com/novexisstudios",
+          "https://www.instagram.com/novexis_studios/",
+          "https://www.linkedin.com/company/novexis-studios/"
+        ]
+      }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
+
     <style>
       body {
         font-family: "Inter", sans-serif;
@@ -72,14 +99,13 @@
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.05);
       }
-      /* Restricted Starfield Background (Top Section Only) */
       #star-container {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 75vh;
-        z-index: 1; /* Positioned between body background and content */
+        z-index: 1;
         background: radial-gradient(circle at top, #0a0a1a 0%, #000000 100%);
         overflow: hidden;
         pointer-events: none;
@@ -113,20 +139,8 @@
         z-index: 10;
         background: transparent;
       }
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #050505;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #1a1a1a;
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #222;
-      }
     </style>
+
     <script type="importmap">
       {
         "imports": {
@@ -149,7 +163,7 @@
     <div id="root"></div>
     <script>
       const container = document.getElementById("star-container");
-      const starCount = 250;
+      const starCount = 200; // Slightly reduced for performance
       for (let i = 0; i < starCount; i++) {
         const star = document.createElement("div");
         star.className = "star";
