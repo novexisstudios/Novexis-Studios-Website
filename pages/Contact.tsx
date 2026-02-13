@@ -7,6 +7,7 @@ const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // TODO: Actually send Emails
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
