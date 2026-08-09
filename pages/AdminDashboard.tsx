@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import {
   Plus,
@@ -12,7 +12,9 @@ import {
   Globe,
   Image as ImageIcon,
   Film,
-  Check
+  Check,
+  Download,
+  Upload
 } from "lucide-react";
 import { getCurrentUser } from "../services/authService";
 import {
@@ -27,6 +29,7 @@ const AdminDashboard = () => {
   const [studies, setStudies] = useState<CaseStudy[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [formData, setFormData] = useState<Partial<CaseStudy>>({
     title: "",
@@ -55,6 +58,38 @@ const AdminDashboard = () => {
   }, []);
 
   if (!user || user.role !== "admin") return <Navigate to="/login" />;
+
+  const exportJSON = () => {
+    const currentStudies = getCaseStudies();
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentStudies, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "novexis_case_studies.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const importJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      fileReader.readAsText(e.target.files[0], "UTF-8");
+      fileReader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target?.result as string);
+          if (Array.isArray(parsed)) {
+            localStorage.setItem("novexis_case_studies", JSON.stringify(parsed));
+            setStudies(parsed);
+            alert(`Successfully imported ${parsed.length} case study records!`);
+          } else {
+            alert("Invalid JSON format. Expected an array of case studies.");
+          }
+        } catch (err) {
+          alert("Failed to parse JSON file.");
+        }
+      };
+    }
+  };
 
   const startEdit = (cs: CaseStudy) => {
     setEditingId(cs.id);
@@ -100,7 +135,6 @@ const AdminDashboard = () => {
     let updatedCats: ProjectCategory[];
 
     if (currentCats.includes(cat)) {
-      // Don't allow removing if it's the only one
       if (currentCats.length === 1) return;
       updatedCats = currentCats.filter((c) => c !== cat);
     } else {
@@ -110,7 +144,7 @@ const AdminDashboard = () => {
     setFormData({
       ...formData,
       categories: updatedCats,
-      category: updatedCats[0], // primary fallback
+      category: updatedCats[0],
     });
   };
 
@@ -191,12 +225,37 @@ const AdminDashboard = () => {
           </p>
         </div>
         {!editingId && !isAdding && (
-          <button
-            onClick={startAdd}
-            className="flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-xl font-sans"
-          >
-            <Plus size={18} /> Initialize New Record
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={exportJSON}
+              title="Export all case study data to JSON file"
+              className="flex items-center gap-2 px-5 py-3 glass text-white/80 border border-white/10 hover:border-blue-500/50 hover:text-white font-bold rounded-full transition-all uppercase text-xs tracking-wider font-sans"
+            >
+              <Download size={14} /> Export JSON
+            </button>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={importJSON}
+              accept=".json"
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              title="Import case study data from JSON file"
+              className="flex items-center gap-2 px-5 py-3 glass text-white/80 border border-white/10 hover:border-purple-500/50 hover:text-white font-bold rounded-full transition-all uppercase text-xs tracking-wider font-sans"
+            >
+              <Upload size={14} /> Import JSON
+            </button>
+
+            <button
+              onClick={startAdd}
+              className="flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-xl font-sans"
+            >
+              <Plus size={18} /> Initialize New Record
+            </button>
+          </div>
         )}
       </div>
 

@@ -10,7 +10,29 @@ const CaseStudyDetail = () => {
   const project = getCaseStudyBySlug(slug || "");
   const [activeMediaTab, setActiveMediaTab] = useState<"video" | "gallery">("video");
 
-  if (!project) return <Navigate to="/portfolio" />;
+  if (!project) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-32 text-center space-y-8 font-sans">
+        <SEO title="System Record Not Found | Novexis Studios" description="The requested case study could not be found." />
+        <div className="text-blue-400 font-mono text-xs uppercase tracking-widest font-bold">
+          [ 404 — SYSTEM RECORD UNRESOLVED ]
+        </div>
+        <h1 className="text-4xl md:text-6xl font-heading font-black uppercase tracking-tight">
+          System Case Study <br /> Not Found.
+        </h1>
+        <p className="text-white/60 text-lg max-w-lg mx-auto font-light">
+          The case study URL you requested does not exist or has been archived.
+        </p>
+        <Link
+          to="/portfolio"
+          className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-mono font-bold text-xs uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-xl shadow-blue-500/20"
+        >
+          <ArrowLeft size={16} />
+          <span>Return to All Case Studies</span>
+        </Link>
+      </div>
+    );
+  }
 
   const videoList = project.videos && project.videos.length > 0
     ? project.videos
