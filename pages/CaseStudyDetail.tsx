@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, PlayCircle, ExternalLink, Globe, Image as ImageIcon, Film } from "lucide-react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, CheckCircle2, ExternalLink, Globe, Image as ImageIcon, Film } from "lucide-react";
 import { getCaseStudyBySlug } from "../services/dataService";
 import { getYoutubeEmbedUrl } from "../utils/videoUtils";
 import SEO from "../components/SEO";
@@ -14,7 +14,7 @@ const CaseStudyDetail = () => {
     return (
       <div className="max-w-4xl mx-auto px-6 py-32 text-center space-y-8 font-sans">
         <SEO title="System Record Not Found | Novexis Studios" description="The requested case study could not be found." />
-        <div className="text-blue-400 font-mono text-xs uppercase tracking-widest font-bold">
+        <div className="text-blue-400 font-accent text-xs uppercase tracking-widest font-bold">
           [ 404 — SYSTEM RECORD UNRESOLVED ]
         </div>
         <h1 className="text-4xl md:text-6xl font-heading font-black uppercase tracking-tight">
@@ -25,7 +25,7 @@ const CaseStudyDetail = () => {
         </p>
         <Link
           to="/portfolio"
-          className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-mono font-bold text-xs uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-xl shadow-blue-500/20"
+          className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-sans font-bold text-xs uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-xl shadow-blue-500/20"
         >
           <ArrowLeft size={16} />
           <span>Return to All Case Studies</span>
@@ -34,17 +34,19 @@ const CaseStudyDetail = () => {
     );
   }
 
-  const videoList = project.videos && project.videos.length > 0
+  const videoList = (project.videos && project.videos.length > 0)
     ? project.videos
     : (project.videoUrl ? [project.videoUrl] : []);
 
-  const imageList = project.images && project.images.length > 0
+  const imageList = (project.images && project.images.length > 0)
     ? project.images
     : (project.imageUrl ? [project.imageUrl] : []);
 
-  const categoriesList = project.categories && project.categories.length > 0
+  const categoriesList = (project.categories && project.categories.length > 0)
     ? project.categories
-    : [project.category];
+    : (project.category ? [project.category] : []);
+
+  const stackList = Array.isArray(project.stack) ? project.stack : [];
 
   return (
     <>
@@ -206,21 +208,23 @@ const CaseStudyDetail = () => {
             </div>
 
             <aside className="space-y-8">
-              <div className="glass p-8 rounded-3xl border border-white/10">
-                <h4 className="font-bold mb-6 text-xs uppercase tracking-[0.2em] text-white/40 font-accent">
-                  SYSTEM TECH STACK
-                </h4>
-                <div className="flex flex-wrap gap-2 font-sans">
-                  {project.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-3 py-1.5 bg-white/5 rounded-xl text-xs font-semibold text-white/80 border border-white/10"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+              {stackList.length > 0 && (
+                <div className="glass p-8 rounded-3xl border border-white/10">
+                  <h4 className="font-bold mb-6 text-xs uppercase tracking-[0.2em] text-white/40 font-accent">
+                    SYSTEM TECH STACK
+                  </h4>
+                  <div className="flex flex-wrap gap-2 font-sans">
+                    {stackList.map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-3 py-1.5 bg-white/5 rounded-xl text-xs font-semibold text-white/80 border border-white/10"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="glass p-8 rounded-3xl border border-white/10 space-y-4">
                 <h4 className="font-bold text-xs uppercase tracking-[0.2em] text-white/40 font-accent">

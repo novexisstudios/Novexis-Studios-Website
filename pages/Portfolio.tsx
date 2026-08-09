@@ -35,60 +35,72 @@ const Portfolio = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
-          {projects.map((project, idx) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <Link
-                to={`/portfolio/${project.slug}`}
-                className="group block space-y-6 glass p-6 rounded-[2.5rem] border border-white/10 hover:border-blue-500/40 transition-all bg-black/60"
+          {(projects || []).map((project, idx) => {
+            const categoriesList = (project.categories && project.categories.length > 0)
+              ? project.categories
+              : (project.category ? [project.category] : []);
+            const stackList = Array.isArray(project.stack) ? project.stack : [];
+
+            return (
+              <motion.div
+                key={project.id || idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
               >
-                <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden glass border border-white/10 shadow-2xl">
-                  <img
-                    src={project.imageUrl}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                    <span className="flex items-center gap-2 text-white font-bold text-sm uppercase tracking-wider font-sans">
-                      Inspect System <ArrowUpRight size={18} />
-                    </span>
+                <Link
+                  to={`/portfolio/${project.slug}`}
+                  className="group block space-y-6 glass p-6 rounded-[2.5rem] border border-white/10 hover:border-blue-500/40 transition-all bg-black/60"
+                >
+                  <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden glass border border-white/10 shadow-2xl">
+                    <img
+                      src={project.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475"}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                      <span className="flex items-center gap-2 text-white font-bold text-sm uppercase tracking-wider font-sans">
+                        Inspect System <ArrowUpRight size={18} />
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="px-2 space-y-3 font-sans">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {(project.categories && project.categories.length > 0 ? project.categories : [project.category]).map((cat, cIdx) => (
-                      <span key={cIdx} className="text-blue-400 text-xs font-bold tracking-[0.2em] uppercase font-accent">
-                        {cat}
-                      </span>
-                    ))}
-                    {project.clientUrl && (
-                      <span className="text-emerald-400 text-[11px] font-bold uppercase tracking-wider font-sans ml-2">
-                        • Live Demo Available
-                      </span>
+
+                  <div className="px-2 space-y-3 font-sans">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {categoriesList.map((cat, cIdx) => (
+                        <span key={cIdx} className="text-blue-400 text-xs font-bold tracking-[0.2em] uppercase font-accent">
+                          {cat}
+                        </span>
+                      ))}
+                      {project.clientUrl && (
+                        <span className="text-emerald-400 text-[11px] font-bold uppercase tracking-wider font-sans ml-2">
+                          • Live Demo Available
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-2xl font-heading font-black group-hover:text-blue-400 transition-colors uppercase tracking-tight">
+                      {project.title}
+                    </h3>
+                    <p className="text-white/60 text-sm font-light leading-relaxed font-sans line-clamp-2">
+                      {project.description}
+                    </p>
+
+                    {stackList.length > 0 && (
+                      <div className="pt-4 border-t border-white/5 flex flex-wrap gap-1.5 text-[11px] font-sans font-semibold">
+                        {stackList.map((st, sIdx) => (
+                          <span key={sIdx} className="px-2.5 py-0.5 rounded bg-white/5 text-white/60 border border-white/5">
+                            {st}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  <h3 className="text-2xl font-heading font-black group-hover:text-blue-400 transition-colors uppercase tracking-tight">
-                    {project.title}
-                  </h3>
-                  <p className="text-white/60 text-sm font-light leading-relaxed font-sans line-clamp-2">
-                    {project.description}
-                  </p>
-                  <div className="pt-4 border-t border-white/5 flex flex-wrap gap-1.5 text-[11px] font-sans font-semibold">
-                    {project.stack.map((st, sIdx) => (
-                      <span key={sIdx} className="px-2.5 py-0.5 rounded bg-white/5 text-white/60 border border-white/5">
-                        {st}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </>

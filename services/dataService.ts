@@ -1,4 +1,4 @@
-import { CaseStudy } from "../types";
+import { CaseStudy, ProjectCategory } from "../types";
 import { INITIAL_CASE_STUDIES } from "../constants";
 
 const STORAGE_KEY = "novexis_case_studies";
@@ -16,9 +16,22 @@ export const getCaseStudies = (): CaseStudy[] => {
       return INITIAL_CASE_STUDIES;
     }
 
-    // Heal/Merge: Ensure initial case studies exist and are published
-    const existingSlugs = new Set(parsed.map((c) => c.slug || c.id));
-    const merged = [...parsed];
+    // Sanitize every record so stack, categories, images, and videos are guaranteed arrays
+    const validParsed: CaseStudy[] = parsed
+      .filter((c) => c && typeof c === "object")
+      .map((c) => ({
+        ...c,
+        category: c.category || ProjectCategory.AI_AUTOMATION,
+        categories: Array.isArray(c.categories) && c.categories.length > 0 ? c.categories : (c.category ? [c.category] : [ProjectCategory.AI_AUTOMATION]),
+        stack: Array.isArray(c.stack) ? c.stack : [],
+        imageUrl: c.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475",
+        images: Array.isArray(c.images) ? c.images : (c.imageUrl ? [c.imageUrl] : []),
+        videoUrl: c.videoUrl || "",
+        videos: Array.isArray(c.videos) ? c.videos : (c.videoUrl ? [c.videoUrl] : []),
+      }));
+
+    const existingSlugs = new Set(validParsed.map((c) => c.slug || c.id).filter(Boolean));
+    const merged = [...validParsed];
 
     for (const initCs of INITIAL_CASE_STUDIES) {
       if (!existingSlugs.has(initCs.slug) && !existingSlugs.has(initCs.id)) {
