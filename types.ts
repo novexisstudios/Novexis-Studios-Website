@@ -1,9 +1,10 @@
 export enum ProjectCategory {
-  TECH = "Technology & Development",
-  MEDIA = "Creative & Media",
-  DESIGN = "Design Systems",
-  CLOUD = "Cloud & Automations",
-  GROWTH = "Marketing & Analytics",
+  AI_AUTOMATION = "01 — AI Automation",
+  SOFTWARE_ENGINEERING = "02 — Software Engineering",
+  SALES_GROWTH = "03 — Sales & Lead Automation",
+  DATA_SYSTEMS = "04 — AI & Data Systems",
+  OPERATIONS = "05 — Operations Automation",
+  DIGITAL_EXPERIENCE = "06 — Digital Experience",
 }
 
 export interface CaseStudy {
@@ -11,26 +12,55 @@ export interface CaseStudy {
   title: string;
   slug: string;
   category: ProjectCategory;
+  categories?: ProjectCategory[];
+  clientUrl?: string;
   description: string;
   problem: string;
-  solution: string;
+  system: string;
+  stack: string[];
   outcome: string;
-  technologies: string[];
   imageUrl: string;
-  videoUrl?: string; // Added: Optional for YouTube/Instagram links
+  images?: string[];
+  videoUrl?: string;
+  videos?: string[];
   published: boolean;
-  createdAt: string; // Added: For system tracking
-  updatedAt?: string; // Added: For modification tracking
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ServiceItem {
   name: string;
   description: string;
+  tags?: string[];
 }
 
 export interface ServiceCategory {
+  id: string;
   title: string;
+  tagline: string;
   items: ServiceItem[];
+  isSecondary?: boolean;
+}
+
+export interface AgentItem {
+  id: string;
+  code: string;
+  name: string;
+  tagline: string;
+  description: string;
+  status: "ACTIVE" | "READY" | "STANDBY";
+  capabilities: string[];
+  latency: string;
+}
+
+export interface AutomationCardItem {
+  id: string;
+  title: string;
+  category: string;
+  trigger: string;
+  flow: string[];
+  output: string;
+  estimatedTimeSaved: string;
 }
 
 export interface User {

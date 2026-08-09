@@ -6,11 +6,13 @@ import {
   Edit3,
   Save,
   X,
-  Eye,
-  EyeOff,
   ShieldCheck,
   Link as LinkIcon,
   Youtube,
+  Globe,
+  Image as ImageIcon,
+  Film,
+  Check
 } from "lucide-react";
 import { getCurrentUser } from "../services/authService";
 import {
@@ -29,16 +31,24 @@ const AdminDashboard = () => {
   const [formData, setFormData] = useState<Partial<CaseStudy>>({
     title: "",
     slug: "",
-    category: ProjectCategory.TECH,
+    category: ProjectCategory.AI_AUTOMATION,
+    categories: [ProjectCategory.AI_AUTOMATION],
+    clientUrl: "",
     description: "",
     problem: "",
-    solution: "",
+    system: "",
     outcome: "",
-    technologies: [],
+    stack: [],
     imageUrl: "",
-    videoUrl: "", // Added Video URL field
+    images: [],
+    videoUrl: "",
+    videos: [],
     published: false,
   });
+
+  const [stackInput, setStackInput] = useState<string>("");
+  const [imagesInput, setImagesInput] = useState<string>("");
+  const [videosInput, setVideosInput] = useState<string>("");
 
   useEffect(() => {
     setStudies(getCaseStudies());
@@ -48,33 +58,108 @@ const AdminDashboard = () => {
 
   const startEdit = (cs: CaseStudy) => {
     setEditingId(cs.id);
-    setFormData(cs);
+    setFormData({
+      ...cs,
+      categories: cs.categories && cs.categories.length > 0 ? cs.categories : [cs.category],
+    });
+    setStackInput(cs.stack ? cs.stack.join(", ") : "");
+    setImagesInput(cs.images ? cs.images.join("\n") : (cs.imageUrl ? cs.imageUrl : ""));
+    setVideosInput(cs.videos ? cs.videos.join("\n") : (cs.videoUrl ? cs.videoUrl : ""));
     setIsAdding(false);
   };
 
   const startAdd = () => {
     setIsAdding(true);
     setEditingId(null);
+    setStackInput("");
+    setImagesInput("");
+    setVideosInput("");
     setFormData({
       id: Math.random().toString(36).substr(2, 9),
       title: "",
       slug: "",
-      category: ProjectCategory.TECH,
+      category: ProjectCategory.AI_AUTOMATION,
+      categories: [ProjectCategory.AI_AUTOMATION],
+      clientUrl: "",
       description: "",
       problem: "",
-      solution: "",
+      system: "",
       outcome: "",
-      technologies: [],
+      stack: [],
       imageUrl: "",
+      images: [],
       videoUrl: "",
+      videos: [],
       published: false,
       createdAt: new Date().toISOString(),
     });
   };
 
+  const toggleCategorySelect = (cat: ProjectCategory) => {
+    const currentCats = formData.categories || [];
+    let updatedCats: ProjectCategory[];
+
+    if (currentCats.includes(cat)) {
+      // Don't allow removing if it's the only one
+      if (currentCats.length === 1) return;
+      updatedCats = currentCats.filter((c) => c !== cat);
+    } else {
+      updatedCats = [...currentCats, cat];
+    }
+
+    setFormData({
+      ...formData,
+      categories: updatedCats,
+      category: updatedCats[0], // primary fallback
+    });
+  };
+
   const handleSave = () => {
     if (formData.id && formData.title) {
-      saveCaseStudy(formData as CaseStudy);
+      const parsedStack = stackInput
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      const parsedImages = imagesInput
+        .split("\n")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      const parsedVideos = videosInput
+        .split("\n")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      const selectedCategories = formData.categories && formData.categories.length > 0
+        ? formData.categories
+        : [formData.category || ProjectCategory.AI_AUTOMATION];
+
+      const primaryImg = parsedImages.length > 0 ? parsedImages[0] : (formData.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475");
+      const primaryVid = parsedVideos.length > 0 ? parsedVideos[0] : (formData.videoUrl || "");
+
+      const caseStudyToSave: CaseStudy = {
+        id: formData.id,
+        title: formData.title || "",
+        slug: formData.slug || formData.title.toLowerCase().replace(/ /g, "-"),
+        category: selectedCategories[0],
+        categories: selectedCategories,
+        clientUrl: formData.clientUrl ? formData.clientUrl.trim() : "",
+        description: formData.description || "",
+        problem: formData.problem || "",
+        system: formData.system || "",
+        outcome: formData.outcome || "",
+        stack: parsedStack.length > 0 ? parsedStack : (formData.stack || []),
+        imageUrl: primaryImg,
+        images: parsedImages,
+        videoUrl: primaryVid,
+        videos: parsedVideos,
+        published: formData.published !== undefined ? formData.published : true,
+        createdAt: formData.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      saveCaseStudy(caseStudyToSave);
       setStudies(getCaseStudies());
       setEditingId(null);
       setIsAdding(false);
@@ -95,31 +180,31 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="max-w-7xl mx-auto px-6 py-10 bg-[#050505] min-h-screen text-white font-sans">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12">
         <div>
           <h1 className="text-4xl font-heading font-black tracking-tighter flex items-center gap-3 uppercase">
-            <ShieldCheck className="text-blue-500" /> System Management
+            <ShieldCheck className="text-blue-500" /> System Management Portal
           </h1>
-          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/30">
-            Admin Access Granted • {user.email}
+          <p className="text-xs font-semibold tracking-wider uppercase text-white/50 font-sans">
+            Admin Session Active • {user.email}
           </p>
         </div>
         {!editingId && !isAdding && (
           <button
             onClick={startAdd}
-            className="flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:scale-105 transition-all uppercase text-xs tracking-widest"
+            className="flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-xl font-sans"
           >
-            <Plus size={18} /> Initialize Record
+            <Plus size={18} /> Initialize New Record
           </button>
         )}
       </div>
 
       {editingId || isAdding ? (
-        <div className="glass p-8 md:p-12 rounded-[2.5rem] border border-white/10 space-y-10 animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex justify-between items-center border-b border-white/5 pb-6">
+        <div className="glass p-8 md:p-12 rounded-[2.5rem] border border-white/10 space-y-8 bg-black/80">
+          <div className="flex justify-between items-center border-b border-white/10 pb-6">
             <h2 className="text-2xl font-heading font-black uppercase tracking-tight">
-              {isAdding ? "New Deployment Record" : "Modifying Core Files"}
+              {isAdding ? "New Deployment Record" : "Modifying System Record"}
             </h2>
             <button
               onClick={() => {
@@ -132,27 +217,27 @@ const AdminDashboard = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2">
-                Title
+          {/* Title & Slug */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent">
+                System Title
               </label>
               <input
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm font-sans"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                placeholder="Project Title"
+                placeholder="Automated Lead Intelligence Pipeline"
               />
             </div>
-            {/* ADDED SLUG FIELD HERE */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent">
                 URL Slug
               </label>
               <input
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm font-sans"
                 value={formData.slug}
                 onChange={(e) =>
                   setFormData({
@@ -160,71 +245,104 @@ const AdminDashboard = () => {
                     slug: e.target.value.toLowerCase().replace(/ /g, "-"),
                   })
                 }
-                placeholder="project-name-slug"
+                placeholder="lead-intelligence-pipeline"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2">
-                System Category
-              </label>
-              <select
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm uppercase font-bold tracking-wider appearance-none"
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    category: e.target.value as ProjectCategory,
-                  })
-                }
-              >
-                {Object.values(ProjectCategory).map((cat) => (
-                  <option key={cat} value={cat} className="bg-black">
+          {/* MULTIPLE SYSTEM CATEGORIES SELECTION */}
+          <div className="space-y-3">
+            <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent flex items-center justify-between">
+              <span>Select System Categories (Multiple allowed)</span>
+              <span className="text-[11px] text-blue-400 font-normal">Click to toggle multiple categories</span>
+            </label>
+            <div className="flex flex-wrap gap-2.5">
+              {Object.values(ProjectCategory).map((cat) => {
+                const isSelected = (formData.categories || [formData.category]).includes(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleCategorySelect(cat)}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider border transition-all flex items-center gap-2 font-sans ${
+                      isSelected
+                        ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-500/20"
+                        : "bg-white/5 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+                    }`}
+                  >
+                    {isSelected && <Check size={14} className="text-white" />}
                     {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Shifted Image/Video inputs below or keep side-by-side as per your preference */}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2 flex items-center gap-2">
-                <LinkIcon size={12} /> Poster Image URL
-              </label>
-              <input
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm"
-                value={formData.imageUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, imageUrl: e.target.value })
-                }
-                placeholder="https://..."
-              />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2 flex items-center gap-2">
-                <Youtube size={12} /> Video URL (Optional)
-              </label>
-              <input
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm"
-                value={formData.videoUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, videoUrl: e.target.value })
-                }
-                placeholder="YouTube Link"
-              />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2">
-              Short Description
+          {/* Client Live Link (Optional) & Tech Stack */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-emerald-400 font-accent flex items-center gap-2">
+                <Globe size={14} /> Client Live Link (Optional)
+              </label>
+              <input
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-500 text-sm font-sans"
+                value={formData.clientUrl || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, clientUrl: e.target.value })
+                }
+                placeholder="https://clientwebsite.com (Optional)"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent">
+                Tech Stack (comma separated)
+              </label>
+              <input
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-sm font-sans"
+                value={stackInput}
+                onChange={(e) => setStackInput(e.target.value)}
+                placeholder="Python, n8n, OpenAI API, PostgreSQL"
+              />
+            </div>
+          </div>
+
+          {/* MULTIPLE IMAGES & MULTIPLE VIDEOS LINKS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent flex items-center justify-between">
+                <span className="flex items-center gap-2"><ImageIcon size={14} /> Multiple Image URLs</span>
+                <span className="text-[10px] text-white/40 font-normal">One link per line</span>
+              </label>
+              <textarea
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-xs font-sans min-h-[100px] leading-relaxed"
+                value={imagesInput}
+                onChange={(e) => setImagesInput(e.target.value)}
+                placeholder="https://image1.jpg&#10;https://image2.jpg&#10;https://image3.jpg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent flex items-center justify-between">
+                <span className="flex items-center gap-2"><Film size={14} /> Multiple Video URLs (Optional)</span>
+                <span className="text-[10px] text-white/40 font-normal">One YouTube/Video link per line</span>
+              </label>
+              <textarea
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 text-xs font-sans min-h-[100px] leading-relaxed"
+                value={videosInput}
+                onChange={(e) => setVideosInput(e.target.value)}
+                placeholder="https://youtube.com/watch?v=...&#10;https://youtube.com/watch?v=..."
+              />
+            </div>
+          </div>
+
+          {/* Short Summary Description */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-white/60 font-accent">
+              Short Summary Description
             </label>
             <textarea
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 min-h-[100px] text-sm"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 min-h-[80px] text-sm font-sans"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -232,27 +350,53 @@ const AdminDashboard = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {["problem", "solution", "outcome"].map((field) => (
-              <div key={field} className="space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2 capitalize">
-                  {field}
-                </label>
-                <textarea
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 min-h-[150px] text-xs leading-relaxed"
-                  value={(formData as any)[field]}
-                  onChange={(e) =>
-                    setFormData({ ...formData, [field]: e.target.value })
-                  }
-                />
-              </div>
-            ))}
+          {/* Problem, System Built, Measurable Outcome */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-rose-400 font-accent">
+                01 — Problem
+              </label>
+              <textarea
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 min-h-[120px] text-xs font-sans"
+                value={formData.problem}
+                onChange={(e) =>
+                  setFormData({ ...formData, problem: e.target.value })
+                }
+                placeholder="What was manually inefficient?"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-blue-400 font-accent">
+                02 — System Built
+              </label>
+              <textarea
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 min-h-[120px] text-xs font-sans"
+                value={formData.system}
+                onChange={(e) =>
+                  setFormData({ ...formData, system: e.target.value })
+                }
+                placeholder="What did Novexis build?"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-emerald-400 font-accent">
+                03 — Measurable Outcome
+              </label>
+              <textarea
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-blue-500 min-h-[120px] text-xs font-sans"
+                value={formData.outcome}
+                onChange={(e) =>
+                  setFormData({ ...formData, outcome: e.target.value })
+                }
+                placeholder="What improved?"
+              />
+            </div>
           </div>
 
-          <div className="flex gap-4 pt-6">
+          <div className="flex gap-4 pt-4">
             <button
               onClick={handleSave}
-              className="flex-1 flex items-center justify-center gap-2 px-8 py-5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-500 transition-all uppercase text-xs tracking-[0.2em]"
+              className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-2xl hover:scale-[1.01] transition-all uppercase text-xs tracking-widest shadow-xl font-sans"
             >
               <Save size={18} /> Commit to Ledger
             </button>
@@ -261,7 +405,7 @@ const AdminDashboard = () => {
                 setEditingId(null);
                 setIsAdding(false);
               }}
-              className="px-8 py-5 glass text-white/40 font-bold rounded-2xl border border-white/10 hover:text-white uppercase text-xs tracking-widest"
+              className="px-8 py-4 glass text-white/50 font-bold rounded-2xl border border-white/10 hover:text-white uppercase text-xs tracking-widest font-sans"
             >
               Abort
             </button>
@@ -272,24 +416,31 @@ const AdminDashboard = () => {
           {studies.map((cs) => (
             <div
               key={cs.id}
-              className="glass p-6 rounded-3xl border border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 group hover:border-blue-500/20 transition-all"
+              className="glass p-6 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 group hover:border-blue-500/30 transition-all bg-black/60 font-sans"
             >
               <div className="flex items-center gap-6">
                 <img
                   src={cs.imageUrl}
-                  className="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all"
+                  className="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all border border-white/10"
                   alt=""
                 />
                 <div>
                   <h3 className="text-xl font-heading font-black uppercase tracking-tight">
                     {cs.title}
                   </h3>
-                  <div className="flex items-center gap-3">
-                    <p className="text-[10px] text-blue-500 uppercase tracking-[0.2em] font-black">
-                      {cs.category}
-                    </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs">
+                    {(cs.categories || [cs.category]).map((cat, cIdx) => (
+                      <span key={cIdx} className="text-blue-400 font-bold uppercase tracking-wider font-accent">
+                        {cat}
+                      </span>
+                    ))}
+                    {cs.clientUrl && (
+                      <span className="text-emerald-400 font-bold flex items-center gap-1 font-sans">
+                        <Globe size={12} /> Live Link
+                      </span>
+                    )}
                     {cs.videoUrl && (
-                      <Youtube size={12} className="text-white/20" />
+                      <Youtube size={14} className="text-red-400" />
                     )}
                   </div>
                 </div>
@@ -298,23 +449,23 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => togglePublish(cs)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold tracking-widest transition-all font-sans ${
                     cs.published
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-white/5 text-white/20"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      : "bg-white/5 text-white/40 border border-white/5"
                   }`}
                 >
                   {cs.published ? "LIVE" : "DRAFT"}
                 </button>
                 <button
                   onClick={() => startEdit(cs)}
-                  className="p-3 glass rounded-xl text-white/40 hover:text-blue-500 transition-all"
+                  className="p-3 glass rounded-xl text-white/60 hover:text-blue-400 transition-all border border-white/5"
                 >
                   <Edit3 size={18} />
                 </button>
                 <button
                   onClick={() => handleDelete(cs.id)}
-                  className="p-3 glass rounded-xl text-white/40 hover:text-red-500 transition-all"
+                  className="p-3 glass rounded-xl text-white/60 hover:text-rose-400 transition-all border border-white/5"
                 >
                   <Trash2 size={18} />
                 </button>

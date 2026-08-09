@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { getPublishedCaseStudies } from "../services/dataService";
 import { CaseStudy } from "../types";
-import SEO from "@/components/SEO";
+import SEO from "../components/SEO";
 
 const Portfolio = () => {
   const [projects, setProjects] = useState<CaseStudy[]>([]);
@@ -15,38 +15,26 @@ const Portfolio = () => {
 
   return (
     <>
-      {/* <SEO
+      <SEO
         title="Case Studies | Novexis Studios"
-        description="Explore Novexis Studios' portfolio of high-performance web apps, AI systems, and cinema-grade video production."
+        description="Explore Novexis Studios' portfolio of AI automation systems, workflow infrastructure, and software engineering case studies."
         url="/portfolio"
-      /> */}
-
-      <title>Case Studies | Novexis Studios</title>
-      <meta
-        name="description"
-        content="Explore Novexis Studios' portfolio of high-performance web apps, AI systems, and cinema-grade video production."
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <div className="mb-32 text-left max-w-4xl">
-          <h1 className="text-6xl md:text-8xl font-heading font-black tracking-tighter mb-8 uppercase">
-            Case Studies.
+      <div className="max-w-7xl mx-auto px-6 py-20 bg-[#050505] min-h-screen text-white font-sans">
+        <div className="mb-24 text-left max-w-4xl space-y-4">
+          <span className="text-xs font-bold tracking-[0.25em] uppercase text-blue-400 block font-accent">
+            [ SYSTEM DEPLOYMENTS ]
+          </span>
+          <h1 className="text-6xl md:text-8xl font-heading font-black tracking-tighter uppercase leading-[0.9]">
+            CASE STUDIES.
           </h1>
-          <p className="text-2xl text-white/50 leading-relaxed font-light">
-            A showcase of our most complex architectural deployments and
-            creative masterpieces. We don't just deliver projects; we solve
-            structural challenges using a mix of advanced engineering,
-            cinema-grade visual storytelling, and high-performance cloud
-            infrastructure.
-          </p>
-          <p className="text-xl text-white/30 leading-relaxed font-light mt-6">
-            Explore how we help global brands and startups migrate legacy
-            systems, automate high-volume content, and build the future of
-            interactive media.
+          <p className="text-2xl text-white/60 leading-relaxed font-light font-sans">
+            Real business operational challenges solved using AI agents, custom workflow automation engines, and reliable backend software infrastructure.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
           {projects.map((project, idx) => (
             <motion.div
               key={project.id}
@@ -57,30 +45,46 @@ const Portfolio = () => {
             >
               <Link
                 to={`/portfolio/${project.slug}`}
-                className="group block space-y-8"
+                className="group block space-y-6 glass p-6 rounded-[2.5rem] border border-white/10 hover:border-blue-500/40 transition-all bg-black/60"
               >
-                <div className="relative aspect-[16/10] rounded-[2.5rem] overflow-hidden glass border border-white/10 shadow-2xl">
+                <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden glass border border-white/10 shadow-2xl">
                   <img
                     src={project.imageUrl}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-10">
-                    <span className="flex items-center gap-3 text-white font-bold text-xl uppercase tracking-wider">
-                      Analyze System <ArrowUpRight size={24} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                    <span className="flex items-center gap-2 text-white font-bold text-sm uppercase tracking-wider font-sans">
+                      Inspect System <ArrowUpRight size={18} />
                     </span>
                   </div>
                 </div>
-                <div className="px-2">
-                  <span className="text-blue-500 text-sm font-bold tracking-[0.3em] uppercase mb-4 block">
-                    {project.category}
-                  </span>
-                  <h3 className="text-3xl font-heading font-black mb-4 group-hover:text-blue-400 transition-colors uppercase tracking-tight">
+                <div className="px-2 space-y-3 font-sans">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {(project.categories && project.categories.length > 0 ? project.categories : [project.category]).map((cat, cIdx) => (
+                      <span key={cIdx} className="text-blue-400 text-xs font-bold tracking-[0.2em] uppercase font-accent">
+                        {cat}
+                      </span>
+                    ))}
+                    {project.clientUrl && (
+                      <span className="text-emerald-400 text-[11px] font-bold uppercase tracking-wider font-sans ml-2">
+                        • Live Demo Available
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-2xl font-heading font-black group-hover:text-blue-400 transition-colors uppercase tracking-tight">
                     {project.title}
                   </h3>
-                  <p className="text-white/50 text-lg line-clamp-2 font-light leading-relaxed">
+                  <p className="text-white/60 text-sm font-light leading-relaxed font-sans line-clamp-2">
                     {project.description}
                   </p>
+                  <div className="pt-4 border-t border-white/5 flex flex-wrap gap-1.5 text-[11px] font-sans font-semibold">
+                    {project.stack.map((st, sIdx) => (
+                      <span key={sIdx} className="px-2.5 py-0.5 rounded bg-white/5 text-white/60 border border-white/5">
+                        {st}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </Link>
             </motion.div>
