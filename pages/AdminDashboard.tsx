@@ -14,13 +14,15 @@ import {
   Film,
   Check,
   Download,
-  Upload
+  Upload,
+  RotateCcw
 } from "lucide-react";
 import { getCurrentUser } from "../services/authService";
 import {
   getCaseStudies,
   saveCaseStudy,
   deleteCaseStudy,
+  resetToDefaults
 } from "../services/dataService";
 import { CaseStudy, ProjectCategory } from "../types";
 
@@ -213,6 +215,13 @@ const AdminDashboard = () => {
     setStudies(getCaseStudies());
   };
 
+  const handleResetDefaults = () => {
+    if (confirm("Reset case studies back to initial system defaults? This will overwrite your current local records.")) {
+      const reset = resetToDefaults();
+      setStudies(reset);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 bg-[#050505] min-h-screen text-white font-sans">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12">
@@ -247,6 +256,14 @@ const AdminDashboard = () => {
               className="flex items-center gap-2 px-5 py-3 glass text-white/80 border border-white/10 hover:border-purple-500/50 hover:text-white font-bold rounded-full transition-all uppercase text-xs tracking-wider font-sans"
             >
               <Upload size={14} /> Import JSON
+            </button>
+
+            <button
+              onClick={handleResetDefaults}
+              title="Restore initial system default case studies"
+              className="flex items-center gap-2 px-4 py-3 glass text-white/50 border border-white/10 hover:border-rose-500/50 hover:text-rose-400 font-bold rounded-full transition-all uppercase text-xs tracking-wider font-sans"
+            >
+              <RotateCcw size={14} /> Reset Defaults
             </button>
 
             <button

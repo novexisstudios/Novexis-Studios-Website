@@ -2,22 +2,31 @@ import { CaseStudy, ProjectCategory } from "../types";
 import { INITIAL_CASE_STUDIES } from "../constants";
 
 const STORAGE_KEY = "novexis_case_studies";
+const INITIALIZED_KEY = "novexis_case_studies_initialized";
 
 export const getCaseStudies = (): CaseStudy[] => {
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) {
+  const isInitialized = localStorage.getItem(INITIALIZED_KEY);
+
+  // First time initialization on a new device/browser
+  if (data === null && !isInitialized) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CASE_STUDIES));
+    localStorage.setItem(INITIALIZED_KEY, "true");
     return INITIAL_CASE_STUDIES;
   }
+
+  if (!data) {
+    return [];
+  }
+
   try {
     const parsed: CaseStudy[] = JSON.parse(data);
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CASE_STUDIES));
-      return INITIAL_CASE_STUDIES;
+    if (!Array.isArray(parsed)) {
+      return [];
     }
 
-    // Sanitize every record so stack, categories, images, and videos are guaranteed arrays
-    const validParsed: CaseStudy[] = parsed
+    // Sanitize every record so stack, categories, images, and videos are guaranteed valid arrays
+    return parsed
       .filter((c) => c && typeof c === "object")
       .map((c) => ({
         ...c,
@@ -28,36 +37,22 @@ export const getCaseStudies = (): CaseStudy[] => {
         images: Array.isArray(c.images) ? c.images : (c.imageUrl ? [c.imageUrl] : []),
         videoUrl: c.videoUrl || "",
         videos: Array.isArray(c.videos) ? c.videos : (c.videoUrl ? [c.videoUrl] : []),
+        published: c.published !== false, // default true unless explicitly set false
       }));
-
-    const existingSlugs = new Set(validParsed.map((c) => c.slug || c.id).filter(Boolean));
-    const merged = [...validParsed];
-
-    for (const initCs of INITIAL_CASE_STUDIES) {
-      if (!existingSlugs.has(initCs.slug) && !existingSlugs.has(initCs.id)) {
-        merged.push(initCs);
-      }
-    }
-    return merged;
   } catch (e) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CASE_STUDIES));
-    return INITIAL_CASE_STUDIES;
+    return [];
   }
 };
 
 export const getPublishedCaseStudies = (): CaseStudy[] => {
   const all = getCaseStudies();
-  const published = all.filter((cs) => cs.published !== false);
-  if (published.length > 0) return published;
-  return INITIAL_CASE_STUDIES;
+  return all.filter((cs) => cs.published === true);
 };
 
 export const getCaseStudyBySlug = (slug: string): CaseStudy | undefined => {
-  if (!slug) return INITIAL_CASE_STUDIES[0];
+  if (!slug) return undefined;
   const studies = getCaseStudies();
-  const found = studies.find((cs) => cs.slug === slug || cs.id === slug);
-  if (found) return found;
-  return INITIAL_CASE_STUDIES.find((cs) => cs.slug === slug || cs.id === slug);
+  return studies.find((cs) => cs.slug === slug || cs.id === slug);
 };
 
 export const saveCaseStudy = (caseStudy: CaseStudy) => {
@@ -79,10 +74,18 @@ export const saveCaseStudy = (caseStudy: CaseStudy) => {
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(studies));
+  localStorage.setItem(INITIALIZED_KEY, "true");
 };
 
 export const deleteCaseStudy = (id: string) => {
   const studies = getCaseStudies();
-  const filtered = studies.filter((cs) => cs.id !== id);
+  const filtered = studies.filter((cs) => cs.id !== id && cs.slug !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  localStorage.setItem(INITIALIZED_KEY, "true");
+};
+
+export const resetToDefaults = (): CaseStudy[] => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_CASE_STUDIES));
+  localStorage.setItem(INITIALIZED_KEY, "true");
+  return INITIAL_CASE_STUDIES;
 };
